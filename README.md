@@ -11,15 +11,6 @@ A streamlined development toolkit for quickly setting up and managing Node.js, R
 
 ## 🚀 Getting Started
 
-### 1️⃣ Clone the Repository
-
-```bash
-git clone https://github.com/yourusername/node-react-mongo-toolkit.git my-project
-cd my-project
-```
-
-Alternatively, you can download the source code directly and initialize your own repository.
-
 ### 1️⃣ Make Scripts Executable
 
 ```bash
