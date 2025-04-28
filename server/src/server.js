@@ -1,21 +1,22 @@
 import app from './app.js';
 import config from './config/config.js';
+import { prismaClient } from './config/prismaClient.js';
 import { initRateLimiter } from './config/rateLimiter.js';
-import databaseService from './service/databaseService.js';
+
 import logger from './util/logger.js';
 
 const server = app.listen(config.PORT);
 
 (async () => {
     try {
-        const connection = await databaseService.connect();
+        await prismaClient.$connect()
         logger.info('DATABASE_CONNECTION', {
             meta: {
-                CONNECTION_NAME: connection.name,
+                CONNECTION_NAME: 'MongoDB',
             },
         });
 
-        initRateLimiter(connection);
+        initRateLimiter(prismaClient);
         logger.info('RATE_LIMITER_INITIATED');
 
         logger.info('APPLICATION_STARTED', {

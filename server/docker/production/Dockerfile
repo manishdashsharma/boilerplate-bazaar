@@ -1,35 +1,38 @@
-# Use a specific node version instead of latest for stability
-FROM node:20-slim
+# Use a specific node version for stability
+FROM node:20 AS build
 
-# Switch to root temporarily to set up directories
+# Switch to root to install system dependencies
 USER root
 
-# Create and set working directory
-WORKDIR /usr/src/app
+# Install OpenSSL if required (optional, depending on your use case)
+RUN apt-get update -y && \
+    apt-get install -y openssl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Create public directories with proper permissions
-RUN mkdir -p /usr/src/app/public/temp && \
-    chown -R node:node /usr/src/app && \
-    chmod -R 777 /usr/src/app/public/temp
+# Set working directory
+WORKDIR /usr/src/app
 
 # Copy package files
 COPY package*.json ./
 
-# Install production dependencies only
-RUN npm ci --only=production && \
-    chown -R node:node /usr/src/app/node_modules
+# Install production dependencies
+RUN npm ci --only=production
 
-# Copy application code
-COPY . .
-RUN chown -R node:node /usr/src/app
+# Copy the rest of the application code and Prisma schema
+COPY src/ ./src/
+COPY prisma/ ./prisma/
 
-# Switch back to node user for security
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Switch to node user for security
 USER node
 
-# Expose the port
+# Expose the application port
 EXPOSE 5000
 
-# Set NODE_ENV
+# Set environment variables
 ENV NODE_ENV=production
 
 # Start the application
